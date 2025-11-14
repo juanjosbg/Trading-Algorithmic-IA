@@ -63,7 +63,6 @@ def run_backtest(df: pd.DataFrame):
     total_return_strategy = (final_equity / INITIAL_CAPITAL - 1) * 100
     total_return_bh = (final_bh / INITIAL_CAPITAL - 1) * 100
 
-    # Drawdown máximo
     rolling_max = df["equity_curve"].cummax()
     drawdown = df["equity_curve"] / rolling_max - 1
     max_drawdown = drawdown.min() * 100  # en %
@@ -85,7 +84,6 @@ def run_backtest(df: pd.DataFrame):
     print(f"Máximo drawdown (caída máxima): {max_drawdown:.2f}%")
     print("====================================\n")
 
-    # Opcional: mostrar últimas filas
     print("Últimos registros de la curva de capital:")
     print(df[["Close", "equity_curve", "buy_and_hold"]].tail())
 
