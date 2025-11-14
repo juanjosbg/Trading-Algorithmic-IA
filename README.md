@@ -173,8 +173,28 @@ Se podría evaluar conectar el sistema a una cuenta real:
 
 ```txt
 Trading-Algorithmic-IA/
+
 │
-├── venv/                 # Entorno virtual de Python
-├── simple_bot.py         # Bot de señales simple con medias móviles
-├── backtest.py           # Backtesting de la estrategia de medias móviles
-└── README.md             # Documentación del proyecto
+├── data/
+│   ├── historical/            # Datos para backtesting
+│   └── daily/                 # Datos más recientes día a día
+│
+├── models/
+│   ├── random_forest_aapl.pkl
+│   ├── random_forest_msft.pkl
+│   ├── random_forest_amzn.pkl
+│   └── reinforcement_agent.pkl
+│
+├── bots/
+│   ├── hybrid_bot.py
+│   ├── multi_asset_hybrid_bot.py
+│   ├── rl_trading_bot.py
+│   └── retraining_scheduler.py
+│
+├── backtesting/
+│   ├── backtest_engine.py
+│   └── metrics.py
+│
+├── feature_engineering.py
+├── ml_model.py
+└── rl_agent.py
