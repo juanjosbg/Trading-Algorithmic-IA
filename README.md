@@ -1,200 +1,69 @@
-# 🤖 Proyecto: IA de Trading Algorítmico – Camino a un Bot Autónomo
+# Algorithmic Trading with AI
 
-## 🧠 Visión del Proyecto
+A research project that evolves a trading bot step by step: from a classic moving-average strategy, to a **machine learning** model, to a **reinforcement learning** agent. Everything runs in **simulation and paper trading** first, and signals are exposed through a **FastAPI** service.
 
-El objetivo final de este proyecto es construir un sistema de **trading algorítmico con IA** que, de manera progresiva, llegue a ser lo más **autónomo** posible:
-
-- Decida **cuándo comprar** y **cuándo vender**.
-- Elija **en qué activos** entrar.
-- Gestione el capital en varias posiciones.
-- Aprenda de los datos históricos y del rendimiento de sus propias decisiones.
-
-⚠️ Importante:  
-Aunque el objetivo es acercarse a un sistema “autónomo”, **no existe garantía de ganancias**. Todos los sistemas de trading, incluso con IA, pueden perder dinero. Por eso el proyecto se construye **por fases**, comenzando siempre en modo simulación.
+> ⚠️ Educational project. It is not financial advice and there is no guarantee of profit.
 
 ---
 
-## 🧩 Fases del Proyecto
+## Project phases
 
-### ✅ Fase 1 – Bot de Señales Simple (`simple_bot.py`)
+| Phase | File | Approach |
+|---|---|---|
+| 1. Simple signals | `simple_bot.py` | Fast and slow moving-average crossover (SMA 20 / 50) |
+| 2. Machine learning | `ml_model.py`, `ml_trading_bot.py` | Random Forest trained on engineered features to predict price direction |
+| 3. Reinforcement learning | `rl_agent.py`, `bots/rl_trading_bot.py` | PPO agent (Stable-Baselines3) in a custom Gymnasium environment |
+| 4. Hybrid bot | `bots/hybrid_trading_bot.py`, `bots/multi_asset_hybrid_bot.py` | Combines ML and RL signals across several assets |
+| 5. Operations | `paper_trading_bot.py`, `bots/retraining_scheduler.py` | Paper trading and scheduled model retraining |
 
-Esta fase implementa una estrategia clásica basada en **medias móviles simples (SMA)**:
+## Features
 
-- Se descarga el precio histórico de un activo (ej. `AAPL`).
-- Se calculan dos medias móviles:
-  - `SMA_SHORT` (rápida, ej. 20 días)
-  - `SMA_LONG` (lenta, ej. 50 días)
-- Reglas:
-  - **BUY** cuando `SMA_SHORT > SMA_LONG`
-  - **SELL** cuando `SMA_SHORT < SMA_LONG`
-  - **HOLD** en cualquier otro caso
+- **Feature engineering** on historical market data from Yahoo Finance
+- **Backtesting engine** with performance metrics (returns, drawdown, win rate)
+- **Portfolio simulator** and parameter **optimizer**
+- **REST API** (FastAPI) that returns buy / sell / hold recommendations per asset
+- Pre-trained model included (`models/random_forest_aapl.pkl`)
 
-El archivo `simple_bot.py`:
+## Tech stack
 
-- Descarga datos con `yfinance`.
-- Calcula indicadores.
-- Muestra una **señal actual** (BUY / SELL / HOLD) y algunos valores clave.
+Python · pandas · NumPy · scikit-learn · Stable-Baselines3 (PPO) · Gymnasium · yfinance · FastAPI
 
-> Esta fase sirve para entender la lógica básica de indicadores y señales, pero todavía no sabemos si la estrategia es buena o mala a largo plazo.
+## Project structure
 
----
-
-### ✅ Fase 2 – Backtesting de la Estrategia (`backtest.py`)
-
-En esta fase se responde la pregunta:
-
-> “¿Qué habría pasado si hubiera usado esta estrategia durante los últimos años?”
-
-El archivo `backtest.py`:
-
-- Descarga datos históricos (ej. 5 años de `AAPL`).
-- Aplica la misma lógica de medias móviles (SMA 20/50).
-- Calcula:
-  - **Curva de capital** de la estrategia.
-  - **Curva de capital** de un inversor que solo hace *buy & hold*.
-  - **Retorno total (%)** de la estrategia.
-  - **Retorno total (%)** del buy & hold.
-  - **Número de trades** aproximados ejecutados.
-  - **Máximo drawdown** (caída máxima del capital).
-
-Con esto se puede evaluar:
-
-- ¿La estrategia gana más que comprar y mantener?
-- ¿Cuánto riesgo (drawdown) asume?
-- ¿Vale la pena seguir optimizándola?
-
----
-
-### ⏳ Fase 3 – Paper Trading / Simulación en Tiempo Real
-
-Una vez el backtest muestra resultados razonables, la siguiente fase será:
-
-- Conectar el sistema a un **bróker con API** (ej. Alpaca para acciones de USA).
-- Operar en **modo paper trading**:
-  - El bot envía órdenes de compra/venta.
-  - El bróker simula las operaciones sin usar dinero real.
-- Objetivos:
-  - Ver cómo se comporta la estrategia en tiempo real.
-  - Detectar errores de lógica, latencia, límites de API, etc.
-  - Ajustar parámetros sin riesgo financiero.
-
-Archivos previstos:
-
-- `broker_client.py` → conexión a la API (ej. Alpaca).
-- `paper_trading_bot.py` → ejecución de la estrategia en tiempo real.
-
----
-
-### ⏳ Fase 4 – Optimización y Gestión de Riesgo
-
-Antes de pensar en IA o dinero real, la estrategia debe fortalecerse:
-
-- Probar distintos parámetros (ej. SMA 10/30, 20/50, 50/200).
-- Agregar:
-  - **Stop Loss** automático.
-  - **Take Profit**.
-  - Filtros de volatilidad.
-  - Filtros de tendencia de largo plazo.
-- Incluir reglas de:
-  - **Gestión de capital** (no ir all-in en una sola posición).
-  - **Diversificación en varias acciones**.
-
-Archivos previstos:
-
-- `optimizer.py` → probar combinaciones de parámetros.
-- `portfolio_simulator.py` → simulación de varios activos a la vez.
-
----
-
-### ⏳ Fase 5 – IA / Machine Learning
-
-Cuando ya exista una base sólida de:
-
-- Datos históricos.
-- Resultados de backtesting.
-- Experiencias en paper trading.
-
-Se podrán incorporar modelos de **Machine Learning** para que la IA “aprenda” patrones del mercado:
-
-- Modelos posibles:
-  - **Random Forest / XGBoost**.
-  - **Redes neuronales densas**.
-  - **LSTM** para series temporales.
-  - **Modelos híbridos** (ML + reglas de indicadores).
-- Objetivos:
-  - Predecir probabilidad de subida/bajada.
-  - Reforzar las decisiones de compra/venta.
-  - Ajustar dinámicamente parámetros según el rendimiento.
-
-Archivos previstos:
-
-- `feature_engineering.py` → construcción de variables de entrada (features).
-- `ml_model.py` → entrenamiento, validación y predicción.
-- `ml_trading_bot.py` → integración del modelo con la lógica de trading.
-
----
-
-### ⏳ Fase 6 – Trading Real (Con Mucha Precaución)
-
-Solo cuando:
-
-- El backtesting sea consistentemente positivo.
-- El paper trading funcione bien.
-- La IA muestre resultados estables.
-
-Se podría evaluar conectar el sistema a una cuenta real:
-
-- Modo real del bróker (ej. Alpaca live, u otro).
-- Capital controlado y limitado.
-- Límites estrictos de riesgo.
-
-⚠️ En esta fase:
-- No hay garantías de ganancias.
-- Siempre existe riesgo de pérdida total del capital asignado.
-- El sistema debe monitorearse y revisarse constantemente.
-
----
-
-## 🧰 Tecnologías Usadas
-
-- **Lenguaje:** Python 3.x
-- **Librerías actuales:**
-  - `yfinance` → descarga de datos de mercado.
-  - `pandas` → análisis de datos.
-  - `numpy` → cálculos numéricos.
-- **Librerías futuras:**
-  - `scikit-learn`, `xgboost` → modelos tradicionales de ML.
-  - `tensorflow` o `pytorch` → redes neuronales.
-  - SDK del bróker (ej. `alpaca-trade-api`) → conexión a mercado.
-
----
-
-## 📂 Estructura Actual del Proyecto
-
-```txt
-Trading-Algorithmic-IA/
-
-│
-├── data/
-│   ├── historical/            # Datos para backtesting
-│   └── daily/                 # Datos más recientes día a día
-│
-├── models/
-│   ├── random_forest_aapl.pkl
-│   ├── random_forest_msft.pkl
-│   ├── random_forest_amzn.pkl
-│   └── reinforcement_agent.pkl
-│
-├── bots/
-│   ├── hybrid_bot.py
-│   ├── multi_asset_hybrid_bot.py
-│   ├── rl_trading_bot.py
-│   └── retraining_scheduler.py
-│
-├── backtesting/
-│   ├── backtest_engine.py
-│   └── metrics.py
-│
+```
+├── api/           FastAPI server, schemas and trading service
+├── backtesting/   Backtest engine and metrics
+├── bots/          RL, hybrid and multi-asset bots, retraining scheduler
+├── models/        Saved models
 ├── feature_engineering.py
 ├── ml_model.py
-└── rl_agent.py
+├── rl_agent.py
+└── paper_trading_bot.py
+```
+
+## Getting started
+
+```bash
+git clone https://github.com/juanjosbg/Trading-Algorithmic-IA.git
+cd Trading-Algorithmic-IA
+python -m venv .venv && source .venv/bin/activate
+pip install pandas numpy scikit-learn yfinance gymnasium stable-baselines3 fastapi uvicorn
+
+# Run a backtest
+python backtest.py
+
+# Start the API
+uvicorn api.main:app --reload
+```
+
+Then open `http://localhost:8000/docs` to try the endpoints.
+
+## Roadmap
+
+- [ ] React dashboard to visualize signals and backtest results
+- [ ] Add news sentiment as a feature using an LLM
+- [ ] Dockerize the API
+
+## Author
+
+**Juan José Borrero** · [Portfolio](https://profile-juanjose.vercel.app/) · [GitHub](https://github.com/juanjosbg)
